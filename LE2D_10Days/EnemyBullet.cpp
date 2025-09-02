@@ -3,7 +3,7 @@
 EnemyBullet::EnemyBullet() {
     pos = { 0.0f, 0.0f };
     radius = 5.0f;
-    velocity = { 0.0f, 10.0f }; // 下方向に移動
+    velocity = { 0.0f, 10.0f };
     isShot = false;
 }
 

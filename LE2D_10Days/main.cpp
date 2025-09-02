@@ -44,17 +44,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
         // プレイヤー移動
         player.Move(WL, WR, WT, WB, keys);
 
-        // 敵移動（プレイヤー弾情報も渡す）
-        enemy.Move(WL, WR, player.GetPos());
+        // 敵移動
+        enemy.Move(WL, WR, player.GetPos(), playerBullets, kMaxPlayerBullets);
 
         // プレイヤー弾発射
         if (playerBulletCooldown > 0) playerBulletCooldown--;
-        if (keys[DIK_SPACE] && playerBulletCooldown <= 0)
-        {
-            for (int i = 0; i < kMaxPlayerBullets; i++)
-            {
-                if (!playerBullets[i].IsShot())
-                {
+        if (keys[DIK_SPACE] && playerBulletCooldown <= 0){
+            for (int i = 0; i < kMaxPlayerBullets; i++){
+                if (!playerBullets[i].IsShot()){
                     playerBullets[i].Shoot(player.GetPos());
                     playerBulletCooldown = 10;
                     break;
@@ -66,7 +63,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
         for (int i = 0; i < kMaxPlayerBullets; i++) playerBullets[i].Update();
 
         // 敵弾発射
-        if (enemyBulletCooldown > 0) enemyBulletCooldown--;
+        if (enemyBulletCooldown > 0) {
+            enemyBulletCooldown--;
+        };
+
         if (enemyBulletCooldown <= 0)
         {
             for (int i = 0; i < kMaxEnemyBullets; i++)
