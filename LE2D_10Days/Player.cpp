@@ -3,7 +3,7 @@
 
 Player::Player() {
 	pos = { 640.0f, 650.0f };
-	radius = 36.0f;
+	radius = 32.0f;
 	speed = { 10.0f, 10.0f };
 }
 
@@ -44,8 +44,52 @@ void Player::Move(int windowLeft, int windowRight, int windowTop, int windowBott
 	};
 }
 
-void Player::Draw()  {
-	Novice::DrawBox((int)(pos.x - radius), (int)(pos.y - radius),
-		(int)(radius * 2), (int)(radius * 2), 0.0f,
-		BLACK, kFillModeSolid);
+
+
+void Player::Hit() {
+	//当たったかの確認と当たった時のフラグ
+	isHit = true;
+	hitTimer = hitDuration;
 }
+
+void Player::Update()
+{
+	//無敵時間を作る(まだ)
+	if (isHit) {
+		hitTimer--;
+		if (hitTimer <= 0.0f) {
+			isHit = false;//被弾状態解除
+		}
+	}
+
+}
+
+//当たり判定
+bool Player::CheckHit(const Vector2& bulletPos, float bulletRadius) {
+		float dx = bulletPos.x - pos.x;
+		float dy = bulletPos.y - pos.y;
+		float distSq = dx * dx + dy * dy;
+		float hitRange = radius + bulletRadius;
+
+		if (distSq < hitRange * hitRange) {
+			isHit = true;
+			hitTimer = 60; // 60f 被弾状態
+			return true;
+		}
+	
+	return false;
+}
+
+
+void Player::Draw() {
+	if (isHit) {
+		Novice::DrawBox((int)(pos.x - radius), (int)(pos.y - radius),
+			(int)(radius * 2), (int)(radius * 2), 0.0f,
+			RED, kFillModeSolid);
+	} else {
+		Novice::DrawBox((int)(pos.x - radius), (int)(pos.y - radius),
+			(int)(radius * 2), (int)(radius * 2), 0.0f,
+			BLACK, kFillModeSolid);
+	}
+}
+

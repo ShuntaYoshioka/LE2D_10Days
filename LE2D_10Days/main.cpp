@@ -14,6 +14,15 @@ const int WR = 1280;
 const int WT = 0;
 const int WB = 720;
 
+enum Scene {
+    TITLE,
+    CREDIT,
+    TUTORIAL,
+    GAME,
+    CLEAR,
+    OVER
+};
+
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 {
     Novice::Initialize(kWindowTitle, WR, WB);
@@ -21,7 +30,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
     char keys[256] = { 0 };
     char preKeys[256] = { 0 };
 
-   
+    int scene = TITLE;
+
     Player player;
     Enemy enemy;
     Line line;
@@ -40,6 +50,59 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
         Novice::BeginFrame();
         memcpy(preKeys, keys, 256);
         Novice::GetHitKeyStateAll(keys);
+
+        switch (scene) {
+        case TITLE:
+            Novice::ScreenPrintf(600, 360, "SPACE : GAME");
+            Novice::ScreenPrintf(600, 380, "C : CREDIT");
+            Novice::ScreenPrintf(600, 400, "T : TUTORIAL");
+
+            if (keys[DIK_SPACE]) {
+                scene = GAME;
+                break;
+            }
+            if (preKeys[DIK_C]) {
+                scene = CREDIT;
+                break;
+            }
+            if (preKeys[DIK_T]) {
+                scene = TUTORIAL;
+                break;
+            }
+            break;
+
+
+        case CREDIT:
+            Novice::ScreenPrintf(600, 360, "E : TITLE");
+
+            if (preKeys[DIK_E]) {
+                scene = TITLE;
+                break;
+            }
+            break;
+
+
+        case TUTORIAL:
+            Novice::ScreenPrintf(600, 360, "E : TITLE");
+
+            if (preKeys[DIK_E]) {
+                scene = TITLE;
+                break;
+            }
+            break;
+
+        case GAME:
+            Novice::ScreenPrintf(600, 360, "C : CLEAR");
+            Novice::ScreenPrintf(600, 380, "B : OVER");
+
+            if (preKeys[DIK_C]) {
+                scene = CLEAR;
+                break;
+            }
+            if (preKeys[DIK_B]) {
+                scene = OVER;
+                break;
+            }
 
         // プレイヤー移動
         player.Move(WL, WR, WT, WB, keys);
@@ -83,6 +146,30 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
         //敵弾
         for (int i = 0; i < kMaxEnemyBullets; i++) enemyBullets[i].Update();
 
+        //被弾判定
+        for (int i = 0; i < kMaxPlayerBullets; i++) {
+            if (playerBullets[i].IsShot()) {
+                // Enemy判定
+                if (enemy.CheckHit(playerBullets[i].GetPos(), playerBullets[i].GetRadius())) {
+                    playerBullets[i].SetShot(false);
+                }
+            }
+        }
+        for (int i = 0; i < kMaxEnemyBullets; i++) {
+            if (enemyBullets[i].IsShot()) {
+                // Playe判定
+                if (player.CheckHit(enemyBullets[i].GetPos(), enemyBullets[i].GetRadius())) {
+                    enemyBullets[i].SetShot(false);
+                }
+            }
+        }
+
+        //被弾タイマー更新 ======
+        player.Update();
+        enemy.Update();
+
+
+
         //描画
         player.Draw();
         enemy.Draw();
@@ -90,6 +177,31 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
         for (int i = 0; i < kMaxPlayerBullets; i++) playerBullets[i].Draw();
         for (int i = 0; i < kMaxEnemyBullets; i++) enemyBullets[i].Draw();
+
+        break;
+
+
+        case CLEAR:
+            Novice::ScreenPrintf(600, 360, "E : TITLE");
+
+            if (preKeys[DIK_E]) {
+                scene = TITLE;
+                break;
+            }
+            break;
+
+
+        case OVER:
+            Novice::ScreenPrintf(600, 360, "E : TITLE");
+
+            if (preKeys[DIK_E]) {
+                scene = TITLE;
+                break;
+            }
+            break;
+        }
+
+
 
         Novice::EndFrame();
 

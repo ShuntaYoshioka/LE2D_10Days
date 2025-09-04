@@ -11,6 +11,7 @@ public:
     bool IsShot() const { return isShot; }
     Vector2 GetPos() const { return pos; }
     float GetRadius() const { return radius; }
+	void SetShot(bool shot) { isShot = shot; }
 
 private:
     bool isShot;
