@@ -3,8 +3,11 @@
 
 Player::Player() {
 	pos = { 640.0f, 650.0f };
-	radius = 32.0f;
+	radius = 36.0f;
 	speed = { 10.0f, 10.0f };
+
+	playerTexture_ = Novice::LoadTexture("Resource/Player/Tank.png");
+
 }
 
 void Player::Move(int windowLeft, int windowRight, int windowTop, int windowBottom, const char* keys) {
@@ -62,10 +65,12 @@ void Player::Update()
 		}
 	}
 
+
 }
 
 //当たり判定
 bool Player::CheckHit(const Vector2& bulletPos, float bulletRadius) {
+	if (!isHit) {
 		float dx = bulletPos.x - pos.x;
 		float dy = bulletPos.y - pos.y;
 		float distSq = dx * dx + dy * dy;
@@ -76,6 +81,7 @@ bool Player::CheckHit(const Vector2& bulletPos, float bulletRadius) {
 			hitTimer = 60; // 60f 被弾状態
 			return true;
 		}
+	}
 	
 	return false;
 }
@@ -87,9 +93,16 @@ void Player::Draw() {
 			(int)(radius * 2), (int)(radius * 2), 0.0f,
 			RED, kFillModeSolid);
 	} else {
-		Novice::DrawBox((int)(pos.x - radius), (int)(pos.y - radius),
-			(int)(radius * 2), (int)(radius * 2), 0.0f,
-			BLACK, kFillModeSolid);
+		Novice::DrawSprite(
+			static_cast<int>(pos.x - radius),
+			static_cast<int>(pos.y - radius),
+			playerTexture_,
+			1.0f, 1.0f, 0.0f, WHITE);
 	}
+
+
+
+	// デバッグ用表示
+	Novice::ScreenPrintf(0, 0, "Player isHit: %d", isHit);
 }
 

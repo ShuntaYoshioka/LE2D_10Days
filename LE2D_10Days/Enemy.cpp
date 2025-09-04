@@ -3,12 +3,12 @@
 
 Enemy::Enemy() {
 	pos = { 640.0f, 100.0f };
-	radius = 32.0f;
+	radius = 36.0f;
 	speed = { 5.0f, 0.0f };
 
 	dodgeCooldown = 0;
 	dodgeDuration = 0;
-	isDodging = false;
+	isDodging = false;    
 }
 
 void Enemy::Move(int windowLeft, int windowRight, const Vector2& playerPos, const PlayerBullet* bullets, int bulletCount) {
@@ -102,6 +102,7 @@ void Enemy::Hit()
 }
 
 bool Enemy::CheckHit(const Vector2& bulletPos, float bulletRadius) {
+	if (!isHit) {
 		float dx = bulletPos.x - pos.x;
 		float dy = bulletPos.y - pos.y;
 		float distSq = dx * dx + dy * dy;
@@ -112,6 +113,7 @@ bool Enemy::CheckHit(const Vector2& bulletPos, float bulletRadius) {
 			hitTimer = 60; // 60f 被弾状態
 			return true;
 		}
+	}
 	
 	return false;
 }

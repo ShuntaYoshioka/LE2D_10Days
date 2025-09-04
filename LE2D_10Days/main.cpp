@@ -152,6 +152,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
                 // Enemy判定
                 if (enemy.CheckHit(playerBullets[i].GetPos(), playerBullets[i].GetRadius())) {
                     playerBullets[i].SetShot(false);
+
+                    line.LineEnemyHit();
                 }
             }
         }
@@ -160,6 +162,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
                 // Playe判定
                 if (player.CheckHit(enemyBullets[i].GetPos(), enemyBullets[i].GetRadius())) {
                     enemyBullets[i].SetShot(false);
+
+                    line.LinePlayerHit();
                 }
             }
         }

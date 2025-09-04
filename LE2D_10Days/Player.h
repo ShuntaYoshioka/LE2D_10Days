@@ -25,5 +25,6 @@ private:
     bool isHit = false;
     float hitTimer = 0.0f;
     float hitDuration = 30.0f;//次にヒットするまでの猶予 無敵時間とする
+    int playerTexture_;
 
 };
