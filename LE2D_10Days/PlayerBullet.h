@@ -5,7 +5,7 @@ class PlayerBullet {
 public:
     PlayerBullet();
     void Update();
-    void Draw() const;
+    void Draw() ;
     void Shoot(const Vector2& startPos);
 
     bool IsShot() const { return isShot; }

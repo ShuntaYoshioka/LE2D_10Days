@@ -7,6 +7,6 @@ Line::Line() {
     height = 20;
 }
 
-void Line::Draw() const {
+void Line::Draw()  {
     Novice::DrawBox((int)pos.x, (int)pos.y, (int)width, (int)height, 0.0f,BLACK, kFillModeSolid);
 }

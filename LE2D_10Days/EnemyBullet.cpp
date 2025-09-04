@@ -24,7 +24,7 @@ void EnemyBullet::Update() {
     }
 }
 
-void EnemyBullet::Draw() const {
+void EnemyBullet::Draw()  {
     if (!isShot) return;
     Novice::DrawBox(
         static_cast<int>(pos.x - radius),

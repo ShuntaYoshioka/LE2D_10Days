@@ -7,7 +7,8 @@ public:
     EnemyBullet();
     void Shoot(const Vector2& startPos);
     void Update();
-    void Draw() const;
+    void Draw() ;
+
     bool IsShot() const { return isShot; }
 
 private:

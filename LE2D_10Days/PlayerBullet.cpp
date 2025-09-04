@@ -23,7 +23,7 @@ void PlayerBullet::Update() {
     }
 }
 
-void PlayerBullet::Draw() const {
+void PlayerBullet::Draw()  {
     if (isShot) {
         Novice::DrawBox((int)(pos.x - radius), (int)(pos.y - radius),
             (int)(radius * 2), (int)(radius * 2),0.0f,

@@ -4,7 +4,7 @@
 class Line {
 public:
     Line();
-    void Draw() const;
+    void Draw() ;
 
 private:
     Vector2 pos;

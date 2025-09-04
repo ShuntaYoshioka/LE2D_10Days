@@ -44,7 +44,7 @@ void Player::Move(int windowLeft, int windowRight, int windowTop, int windowBott
 	};
 }
 
-void Player::Draw() const {
+void Player::Draw()  {
 	Novice::DrawBox((int)(pos.x - radius), (int)(pos.y - radius),
 		(int)(radius * 2), (int)(radius * 2), 0.0f,
 		BLACK, kFillModeSolid);
