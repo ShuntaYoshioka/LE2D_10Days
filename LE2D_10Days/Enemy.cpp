@@ -3,7 +3,7 @@
 
 Enemy::Enemy() {
     pos = { 640.0f, 100.0f };
-    radius = 20.0f;
+    radius = 36.0f;
     speed = { 5.0f, 0.0f };
 
     dodgeCooldown = 0;

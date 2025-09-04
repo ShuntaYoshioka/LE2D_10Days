@@ -3,7 +3,7 @@
 
 Player::Player() {
 	pos = { 640.0f, 650.0f };
-	radius = 30.0f;
+	radius = 36.0f;
 	speed = { 10.0f, 10.0f };
 }
 
