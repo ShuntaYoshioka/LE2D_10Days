@@ -45,6 +45,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
     int playerBulletCooldown = 0;
     int enemyBulletCooldown = 0;
 
+    int isGameOver = false;
+    int isGameClear = false;
+
     while (Novice::ProcessMessage() == 0)
     {
         Novice::BeginFrame();
@@ -172,6 +175,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
         player.Update();
         enemy.Update();
 
+        if (line.CheckHitPlayer(player)) {
+            isGameOver = true;  //負け
+            scene = OVER;
+        }
+        if (line.CheckHitEnemy(enemy)) {
+            isGameClear = true; //勝利
+            scene = CLEAR;
+        }
+
 
 
         //描画
@@ -186,7 +198,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 
         case CLEAR:
-            Novice::ScreenPrintf(600, 360, "E : TITLE");
+            Novice::ScreenPrintf(600, 360, "GAME CLEAR  E : TITLE");
 
             if (preKeys[DIK_E]) {
                 scene = TITLE;
@@ -196,7 +208,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 
         case OVER:
-            Novice::ScreenPrintf(600, 360, "E : TITLE");
+            Novice::ScreenPrintf(600, 360, "GAME OVER  E : TITLE");
 
             if (preKeys[DIK_E]) {
                 scene = TITLE;

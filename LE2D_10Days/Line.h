@@ -1,5 +1,7 @@
 ﻿#pragma once
 #include "Vector2.h"
+#include "Player.h"
+#include "Enemy.h"
 
 class Line {
 public:
@@ -11,6 +13,9 @@ public:
 
     void LinePlayerHit(); // プレイヤーに当たった時
     void LineEnemyHit();  // 敵に当たった時
+
+    bool CheckHitPlayer(const Player& player);
+    bool CheckHitEnemy(const Enemy& enemy);
 
 private:
     Vector2 pos;
