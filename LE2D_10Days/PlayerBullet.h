@@ -14,6 +14,9 @@ public:
     float GetRadius() const { return radius; }
 	void SetShot(bool shot) { isShot = shot; }
 
+    Vector2 GetVelocity() const { return velocity; }
+    void SetVelocity(const Vector2& v) { velocity = v; }
+
 private:
     bool isShot;
     Vector2 pos;

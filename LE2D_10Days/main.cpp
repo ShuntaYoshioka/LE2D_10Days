@@ -4,8 +4,10 @@
 #include "PlayerBullet.h"
 #include "EnemyBullet.h"
 #include "Line.h"
+#include "Item.h"
 #include "Vector2.h"
-#include <cstring>
+#include <ctime>
+#include <cstdlib>
 
 const char kWindowTitle[] = "2061_試作";
 
@@ -15,53 +17,61 @@ const int WT = 0;
 const int WB = 720;
 
 enum Scene {
-    TITLE,
-    CREDIT,
-    TUTORIAL,
-    GAME,
-    CLEAR,
-    OVER
+	TITLE,
+	CREDIT,
+	TUTORIAL,
+	GAME,
+	CLEAR,
+	OVER
 };
+
 
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 {
-    Novice::Initialize(kWindowTitle, WR, WB);
+	Novice::Initialize(kWindowTitle, WR, WB);
 
-    char keys[256] = { 0 };
-    char preKeys[256] = { 0 };
+	char keys[256] = { 0 };
+	char preKeys[256] = { 0 };
 
-    int scene = TITLE;
+	int scene = TITLE;
 
-    Player player;
-    Enemy enemy;
-    Line line;
 
-    const int kMaxPlayerBullets = 8;
-    PlayerBullet playerBullets[kMaxPlayerBullets];
+	unsigned int currentTime = static_cast<unsigned int>(time(nullptr));
+	srand(currentTime);
 
-    const int kMaxEnemyBullets = 8;
-    EnemyBullet enemyBullets[kMaxEnemyBullets];
+	Player player;
+	Enemy enemy;
+	Line line;
 
-    int playerBulletCooldown = 0;
-    int enemyBulletCooldown = 0;
+	const int kMaxPlayerBullets = 8;
+	PlayerBullet playerBullets[kMaxPlayerBullets];
 
-    int isGameOver = false;
-    int isGameClear = false;
+	const int kMaxEnemyBullets = 8;
+	EnemyBullet enemyBullets[kMaxEnemyBullets];
 
-    while (Novice::ProcessMessage() == 0)
-    {
-        Novice::BeginFrame();
-        memcpy(preKeys, keys, 256);
-        Novice::GetHitKeyStateAll(keys);
+	int playerBulletCooldown = 0;
+	int enemyBulletCooldown = 0;
 
-        switch (scene) {
-        case TITLE:
-            Novice::ScreenPrintf(600, 360, "SPACE : GAME");
-            Novice::ScreenPrintf(600, 380, "C : CREDIT");
-            Novice::ScreenPrintf(600, 400, "T : TUTORIAL");
+	Item doubleAttack(Item::Type::DoubleAttack);
+	Item followBullet(Item::Type::FollowBullet);
 
-            player.Initialize();
-            enemy.Initialize();
+	int isGameOver = false;
+	int isGameClear = false;
+
+	while (Novice::ProcessMessage() == 0)
+	{
+		Novice::BeginFrame();
+		memcpy(preKeys, keys, 256);
+		Novice::GetHitKeyStateAll(keys);
+
+		switch (scene) {
+		case TITLE:
+			Novice::ScreenPrintf(600, 360, "SPACE : GAME");
+			Novice::ScreenPrintf(600, 380, "C : CREDIT");
+			Novice::ScreenPrintf(600, 400, "T : TUTORIAL");
+
+			player.Initialize();
+			enemy.Initialize();
 			line.Initialize();
 			for (int i = 0; i < kMaxPlayerBullets; i++) playerBullets[i].Initialize();
 			for (int i = 0; i < kMaxEnemyBullets; i++) enemyBullets[i].Initialize();
@@ -71,170 +81,190 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			enemyBulletCooldown = 0;
 
 
-            if (keys[DIK_SPACE]) {
-                scene = GAME;
-                break;
-            }
-            if (preKeys[DIK_C]) {
-                scene = CREDIT;
-                break;
-            }
-            if (preKeys[DIK_T]) {
-                scene = TUTORIAL;
-                break;
-            }
-            break;
+
+			if (keys[DIK_SPACE]) {
+				scene = GAME;
+				break;
+			}
+			if (preKeys[DIK_C]) {
+				scene = CREDIT;
+				break;
+			}
+			if (preKeys[DIK_T]) {
+				scene = TUTORIAL;
+				break;
+			}
+			break;
 
 
-        case CREDIT:
-            Novice::ScreenPrintf(600, 360, "E : TITLE");
+		case CREDIT:
+			Novice::ScreenPrintf(600, 360, "E : TITLE");
 
-            if (preKeys[DIK_E]) {
-                scene = TITLE;
-                break;
-            }
-            break;
-
-
-        case TUTORIAL:
-            Novice::ScreenPrintf(600, 360, "E : TITLE");
-
-            if (preKeys[DIK_E]) {
-                scene = TITLE;
-                break;
-            }
-            break;
-
-        case GAME:
-            Novice::ScreenPrintf(600, 360, "C : CLEAR");
-            Novice::ScreenPrintf(600, 380, "B : OVER");
-
-            if (preKeys[DIK_C]) {
-                scene = CLEAR;
-                break;
-            }
-            if (preKeys[DIK_B]) {
-                scene = OVER;
-                break;
-            }
-
-        // プレイヤー移動
-        player.Move(WL, WR, WT, WB, keys);
-
-        // 敵移動
-        enemy.Move(WL, WR, player.GetPos(), playerBullets, kMaxPlayerBullets);
-
-        // プレイヤー弾発射
-        if (playerBulletCooldown > 0) playerBulletCooldown--;
-        if (keys[DIK_SPACE] && playerBulletCooldown <= 0){
-            for (int i = 0; i < kMaxPlayerBullets; i++){
-                if (!playerBullets[i].IsShot()){
-                    playerBullets[i].Shoot(player.GetPos());
-                    playerBulletCooldown = 10;
-                    break;
-                }
-            }
-        }
-
-        // プレイヤー弾更新
-        for (int i = 0; i < kMaxPlayerBullets; i++) playerBullets[i].Update();
-
-        // 敵弾発射
-        if (enemyBulletCooldown > 0) {
-            enemyBulletCooldown--;
-        };
-
-        if (enemyBulletCooldown <= 0)
-        {
-            for (int i = 0; i < kMaxEnemyBullets; i++)
-            {
-                if (!enemyBullets[i].IsShot())
-                {
-                    enemyBullets[i].Shoot(enemy.GetPos());
-                    enemyBulletCooldown = 30; // 敵のクールタイム
-                    break;
-                }
-            }
-        }
-
-        //敵弾
-        for (int i = 0; i < kMaxEnemyBullets; i++) enemyBullets[i].Update();
-
-        //被弾判定
-        for (int i = 0; i < kMaxPlayerBullets; i++) {
-            if (playerBullets[i].IsShot()) {
-                // Enemy判定
-                if (enemy.CheckHit(playerBullets[i].GetPos(), playerBullets[i].GetRadius())) {
-                    playerBullets[i].SetShot(false);
-
-                    line.LineEnemyHit();
-                }
-            }
-        }
-        for (int i = 0; i < kMaxEnemyBullets; i++) {
-            if (enemyBullets[i].IsShot()) {
-                // Playe判定
-                if (player.CheckHit(enemyBullets[i].GetPos(), enemyBullets[i].GetRadius())) {
-                    enemyBullets[i].SetShot(false);
-
-                    line.LinePlayerHit();
-                }
-            }
-        }
-
-        //被弾タイマー更新 ======
-        player.Update();
-        enemy.Update();
-
-        if (line.CheckHitPlayer(player)) {
-            isGameOver = true;  //負け
-            scene = OVER;
-        }
-        if (line.CheckHitEnemy(enemy)) {
-            isGameClear = true; //勝利
-            scene = CLEAR;
-        }
+			if (preKeys[DIK_E]) {
+				scene = TITLE;
+				break;
+			}
+			break;
 
 
+		case TUTORIAL:
+			Novice::ScreenPrintf(600, 360, "E : TITLE");
 
-        //描画
-        player.Draw();
-        enemy.Draw();
-        line.Draw();
+			if (preKeys[DIK_E]) {
+				scene = TITLE;
+				break;
+			}
+			break;
 
-        for (int i = 0; i < kMaxPlayerBullets; i++) playerBullets[i].Draw();
-        for (int i = 0; i < kMaxEnemyBullets; i++) enemyBullets[i].Draw();
+		case GAME:
+			Novice::ScreenPrintf(600, 360, "C : CLEAR");
+			Novice::ScreenPrintf(600, 380, "B : OVER");
 
-        break;
+			if (preKeys[DIK_C]) {
+				scene = CLEAR;
+				break;
+			}
+			if (preKeys[DIK_B]) {
+				scene = OVER;
+				break;
+			}
+
+			// プレイヤー移動
+			player.Move(WL, WR, WT, WB, keys);
+
+			// 敵移動
+			enemy.Move(WL, WR, WT, player.GetPos(), playerBullets, kMaxPlayerBullets);
+
+			// プレイヤー弾発射
+			if (playerBulletCooldown > 0) playerBulletCooldown--;
+			if (keys[DIK_SPACE] && playerBulletCooldown <= 0) {
+				for (int i = 0; i < kMaxPlayerBullets; i++) {
+					if (!playerBullets[i].IsShot()) {
+						playerBullets[i].Shoot(player.GetPos());
+						playerBulletCooldown = 10;
+						break;
+					}
+				}
+			}
+
+			// プレイヤー弾更新
+			for (int i = 0; i < kMaxPlayerBullets; i++) playerBullets[i].Update();
+
+			// 敵弾発射
+			if (enemyBulletCooldown > 0) {
+				enemyBulletCooldown--;
+			};
+
+			if (enemyBulletCooldown <= 0)
+			{
+				for (int i = 0; i < kMaxEnemyBullets; i++)
+				{
+					if (!enemyBullets[i].IsShot())
+					{
+						enemyBullets[i].Shoot(enemy.GetPos());
+						enemyBulletCooldown = 30; // 敵のクールタイム
+						break;
+					}
+				}
+			}
+
+			//敵弾
+			for (int i = 0; i < kMaxEnemyBullets; i++) enemyBullets[i].Update();
+
+			//被弾判定
+			for (int i = 0; i < kMaxPlayerBullets; i++) {
+				if (playerBullets[i].IsShot()) {
+					// Enemy判定
+					if (enemy.CheckHit(playerBullets[i].GetPos(), playerBullets[i].GetRadius())) {
+						playerBullets[i].SetShot(false);
+
+						line.LineEnemyHit();
+					}
+				}
+			}
+			for (int i = 0; i < kMaxEnemyBullets; i++) {
+				if (enemyBullets[i].IsShot()) {
+					// Playe判定
+					if (player.CheckHit(enemyBullets[i].GetPos(), enemyBullets[i].GetRadius())) {
+						enemyBullets[i].SetShot(false);
+
+						line.LinePlayerHit();
+					}
+				}
+			}
+
+			// アイテム更新
+			doubleAttack.Update();
+			followBullet.Update();
+
+			// プレイヤー弾との接触判定
+			for (int i = 0; i < kMaxPlayerBullets; i++) {
+				if (playerBullets[i].IsShot()) {
+					//アイテム更新
+					doubleAttack.CheckGet(playerBullets, kMaxPlayerBullets);
+					followBullet.CheckGet(playerBullets, kMaxPlayerBullets);
+
+				}
+			}
 
 
-        case CLEAR:
-            Novice::ScreenPrintf(600, 360, "GAME CLEAR  E : TITLE");
+			//被弾タイマー更新 ======
+			player.Update();
+			enemy.Update();
 
-            if (preKeys[DIK_E]) {
-                scene = TITLE;
-                break;
-            }
-            break;
-
-
-        case OVER:
-            Novice::ScreenPrintf(600, 360, "GAME OVER  E : TITLE");
-
-            if (preKeys[DIK_E]) {
-                scene = TITLE;
-                break;
-            }
-            break;
-        }
+			if (line.CheckHitPlayer(player)) {
+				isGameOver = true;  //負け
+				scene = OVER;
+			}
+			if (line.CheckHitEnemy(enemy)) {
+				isGameClear = true; //勝利
+				scene = CLEAR;
+			}
 
 
 
-        Novice::EndFrame();
+			//描画
+			player.Draw();
+			enemy.Draw();
+			line.Draw();
 
-        if (preKeys[DIK_ESCAPE] == 0 && keys[DIK_ESCAPE] != 0) break;
-    }
+			doubleAttack.Draw();
+			followBullet.Draw();
 
-    Novice::Finalize();
-    return 0;
+
+			for (int i = 0; i < kMaxPlayerBullets; i++) playerBullets[i].Draw();
+			for (int i = 0; i < kMaxEnemyBullets; i++) enemyBullets[i].Draw();
+
+			break;
+
+
+		case CLEAR:
+			Novice::ScreenPrintf(600, 360, "GAME CLEAR  E : TITLE");
+
+			if (preKeys[DIK_E]) {
+				scene = TITLE;
+				break;
+			}
+			break;
+
+
+		case OVER:
+			Novice::ScreenPrintf(600, 360, "GAME OVER  E : TITLE");
+
+			if (preKeys[DIK_E]) {
+				scene = TITLE;
+				break;
+			}
+			break;
+		}
+
+
+
+		Novice::EndFrame();
+
+		if (preKeys[DIK_ESCAPE] == 0 && keys[DIK_ESCAPE] != 0) break;
+	}
+
+	Novice::Finalize();
+	return 0;
 }

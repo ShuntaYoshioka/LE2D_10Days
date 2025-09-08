@@ -1,5 +1,6 @@
 ﻿#include "Enemy.h"
 #include <Novice.h>
+#include <corecrt_math.h>
 
 Enemy::Enemy() {
 	Initialize();
@@ -21,7 +22,12 @@ void Enemy::Initialize()
 	isHit = false;
 }
 
-void Enemy::Move(int windowLeft, int windowRight, const Vector2& playerPos, const PlayerBullet* bullets, int bulletCount) {
+void Enemy::Move(int windowLeft, int windowRight, int windowTop, const Vector2& playerPos, const PlayerBullet* bullets, int bulletCount) {
+	
+	frameCount++;
+	if (frameCount > 360) frameCount = 0;
+
+	
 	if (dodgeCooldown > 0) {
 		dodgeCooldown--;
 	}
@@ -67,16 +73,22 @@ void Enemy::Move(int windowLeft, int windowRight, const Vector2& playerPos, cons
 
 	//追尾
 	if (!isDodging) {
+		// X方向追従
 		if (playerPos.x > pos.x) {
 			pos.x += speed.x;
 		} else if (playerPos.x < pos.x) {
 			pos.x -= speed.x;
 		}
+
+		// Y方向にゆらゆら
+		pos.y += sinf(GetFrameCount() * 0.1f) * 1.5f; // 上下ゆらゆら
 	}
+
 
 	//画面外に出ないようにする
 	if (pos.x - radius < windowLeft) pos.x = windowLeft + radius;
 	if (pos.x + radius > windowRight) pos.x = windowRight - radius;
+	if (pos.y - radius < windowTop) pos.y = windowTop + radius;
 }
 
 void Enemy::Draw() {
@@ -127,7 +139,3 @@ bool Enemy::CheckHit(const Vector2& bulletPos, float bulletRadius) {
 
 	return false;
 }
-
-
-
-

@@ -6,7 +6,7 @@ class Enemy {
 public:
     Enemy();
     void Initialize();
-    void Move(int windowLeft, int windowRight, const Vector2& playerPos, const PlayerBullet* bullets, int bulletCount);
+    void Move(int windowLeft, int windowRight, int windowTop,const Vector2& playerPos, const PlayerBullet* bullets, int bulletCount);
     void Draw() ;
 
     void Update();
@@ -19,6 +19,7 @@ public:
 
     bool IsHit() const { return isHit; }
 
+    int GetFrameCount() const { return frameCount; }
 private:
     Vector2 pos;
     float radius;
@@ -27,7 +28,9 @@ private:
     // クールタイム
     int dodgeCooldown;  
     int dodgeDuration; 
-    bool isDodging;     
+    bool isDodging;
+
+    int frameCount = 0;
 
     bool isHit = false;
     float hitTimer = 0.0f;
