@@ -4,6 +4,7 @@
 class Player {
 public:
     Player();
+    void Initialize();
     void Move(int windowLeft, int windowRight, int windowTop, int windowBottom, const char* keys);
     void Hit();
     void Update();

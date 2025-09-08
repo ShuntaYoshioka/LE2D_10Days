@@ -2,13 +2,23 @@
 #include <Novice.h>
 
 Enemy::Enemy() {
+	Initialize();
+
+	//テクスチャ読み込みはここ
+
+}
+
+void Enemy::Initialize()
+{
 	pos = { 640.0f, 100.0f };
 	radius = 36.0f;
 	speed = { 5.0f, 0.0f };
 
 	dodgeCooldown = 0;
 	dodgeDuration = 0;
-	isDodging = false;    
+	isDodging = false;
+
+	isHit = false;
 }
 
 void Enemy::Move(int windowLeft, int windowRight, const Vector2& playerPos, const PlayerBullet* bullets, int bulletCount) {
@@ -114,7 +124,7 @@ bool Enemy::CheckHit(const Vector2& bulletPos, float bulletRadius) {
 			return true;
 		}
 	}
-	
+
 	return false;
 }
 

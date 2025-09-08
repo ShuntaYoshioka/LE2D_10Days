@@ -6,6 +6,7 @@
 class Line {
 public:
     Line();
+	void Initialize();
     void Draw() ;
 
     void SetPos(float x, float y) { pos.x = x; pos.y = y; }

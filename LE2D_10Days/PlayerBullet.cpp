@@ -2,11 +2,17 @@
 #include <Novice.h>
 
 PlayerBullet::PlayerBullet() {
+    Initialize();
+}
+
+void PlayerBullet::Initialize()
+{
     isShot = false;
     pos = { 0, 0 };
     velocity = { 0, -10 };
     radius = 5;
 }
+
 
 void PlayerBullet::Shoot(const Vector2& startPos) {
     if (!isShot) {

@@ -4,6 +4,7 @@
 class PlayerBullet {
 public:
     PlayerBullet();
+    void Initialize();
     void Update();
     void Draw() ;
     void Shoot(const Vector2& startPos);

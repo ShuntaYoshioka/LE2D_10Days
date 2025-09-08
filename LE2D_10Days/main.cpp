@@ -60,6 +60,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
             Novice::ScreenPrintf(600, 380, "C : CREDIT");
             Novice::ScreenPrintf(600, 400, "T : TUTORIAL");
 
+            player.Initialize();
+            enemy.Initialize();
+			line.Initialize();
+			for (int i = 0; i < kMaxPlayerBullets; i++) playerBullets[i].Initialize();
+			for (int i = 0; i < kMaxEnemyBullets; i++) enemyBullets[i].Initialize();
+			isGameOver = false;
+			isGameClear = false;
+			playerBulletCooldown = 0;
+			enemyBulletCooldown = 0;
+
+
             if (keys[DIK_SPACE]) {
                 scene = GAME;
                 break;

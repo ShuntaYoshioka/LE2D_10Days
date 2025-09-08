@@ -5,6 +5,7 @@
 class Enemy {
 public:
     Enemy();
+    void Initialize();
     void Move(int windowLeft, int windowRight, const Vector2& playerPos, const PlayerBullet* bullets, int bulletCount);
     void Draw() ;
 

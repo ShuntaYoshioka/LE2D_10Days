@@ -1,6 +1,11 @@
 ﻿#include "EnemyBullet.h"
 
 EnemyBullet::EnemyBullet() {
+	Initialize();
+}
+
+void EnemyBullet::Initialize()
+{
     pos = { 0.0f, 0.0f };
     radius = 5.0f;
     velocity = { 0.0f, 10.0f };

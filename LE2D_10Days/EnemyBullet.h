@@ -5,6 +5,7 @@
 class EnemyBullet {
 public:
     EnemyBullet();
+    void Initialize();
     void Shoot(const Vector2& startPos);
     void Update();
     void Draw() ;

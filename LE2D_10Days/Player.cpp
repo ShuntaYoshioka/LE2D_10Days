@@ -2,12 +2,18 @@
 #include <Novice.h>
 
 Player::Player() {
-	pos = { 640.0f, 650.0f };
-	radius = 36.0f;
-	speed = { 10.0f, 10.0f };
+	Initialize();
 
 	playerTexture_ = Novice::LoadTexture("Resource/Player/Tank.png");
 
+}
+
+void Player::Initialize() {
+	pos = { 640.0f, 650.0f };
+	radius = 36.0f;
+	speed = { 10.0f, 10.0f };
+	isHit = false;
+	hitTimer = 0;
 }
 
 void Player::Move(int windowLeft, int windowRight, int windowTop, int windowBottom, const char* keys) {
