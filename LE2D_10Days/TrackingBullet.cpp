@@ -29,6 +29,7 @@ void TrackingBullet::Update(Enemy& enemy) {
         dir.y /= len;
     }
 
+
     pos.x += dir.x * speed;
     pos.y += dir.y * speed;
 }
