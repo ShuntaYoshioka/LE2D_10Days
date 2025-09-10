@@ -3,12 +3,12 @@
 #include "Vector2.h"
 #include <Novice.h>
 
-class Item {
+class ItemTracking {
 public:
-    Item();
+    ItemTracking();
 
     void Initialize();
-    void Move();
+    void Move();                       // アイテム自体の落下などの動き
     void Draw();
     void CheckGet(PlayerBullet* bullets, int bulletCount);
 

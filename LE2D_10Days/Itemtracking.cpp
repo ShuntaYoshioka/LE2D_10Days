@@ -1,12 +1,12 @@
-﻿#include "Item.h"
+﻿#include "ItemTracking.h"
 #include <cstdlib>
 
-Item::Item() {
+ItemTracking::ItemTracking() {
     Initialize();
-    graphHandleItem = Novice::LoadTexture("Resource/Items/doubleAttack.png"); // アイテムの見た目
+    graphHandleItem = Novice::LoadTexture("Resource/Items/follow.png"); // アイテムの見た目
 }
 
-void Item::Initialize() {
+void ItemTracking::Initialize() {
     pos.x = static_cast<float>(rand() % 1280 + 40);
     pos.y = 0.0f;
     radius = 32.0f;
@@ -17,7 +17,7 @@ void Item::Initialize() {
     respawnTimer = 0;
 }
 
-void Item::Move() {
+void ItemTracking::Move() {
     if (isAppear) {
         pos.y += speedY_;
         if (pos.y > 720) {
@@ -42,13 +42,13 @@ void Item::Move() {
     }
 }
 
-void Item::Draw() {
+void ItemTracking::Draw() {
     if (isAppear) {
         Novice::DrawSprite((int)(pos.x - radius), (int)(pos.y - radius), graphHandleItem, 1.0f, 1.0f, 0.0f, WHITE);
     }
 }
 
-void Item::CheckGet(PlayerBullet* bullets, int bulletCount) {
+void ItemTracking::CheckGet(PlayerBullet* bullets, int bulletCount) {
     if (!isAppear) return;
 
     for (int i = 0; i < bulletCount; i++) {

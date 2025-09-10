@@ -5,6 +5,8 @@
 #include "EnemyBullet.h"
 #include "Line.h"
 #include "Item.h"
+#include "ItemTracking.h"
+#include "TrackingBullet.h"
 #include "Vector2.h"
 #include <ctime>
 #include <cstdlib>
@@ -43,17 +45,21 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	Enemy enemy;
 	Line line;
 
+	ItemTracking trackingItem;
+	Item doubleAttack;
+
 	const int kMaxPlayerBullets = 8;
 	PlayerBullet playerBullets[kMaxPlayerBullets];
 
 	const int kMaxEnemyBullets = 8;
 	EnemyBullet enemyBullets[kMaxEnemyBullets];
 
+	const int kMaxTrackingBullets = 8;
+	TrackingBullet trackingBullets[kMaxTrackingBullets];
+
 	int playerBulletCooldown = 0;
 	int enemyBulletCooldown = 0;
-
-	Item doubleAttack(Item::Type::DoubleAttack);
-	Item followBullet(Item::Type::FollowBullet);
+	int trackingBulletCooldown = 0;
 
 	int isGameOver = false;
 	int isGameClear = false;
@@ -73,12 +79,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			player.Initialize();
 			enemy.Initialize();
 			line.Initialize();
+			doubleAttack.Initialize();
+			trackingItem.Initialize();
+			for (int i = 0; i < kMaxTrackingBullets; i++) trackingBullets[i].Initialize();
 			for (int i = 0; i < kMaxPlayerBullets; i++) playerBullets[i].Initialize();
 			for (int i = 0; i < kMaxEnemyBullets; i++) enemyBullets[i].Initialize();
 			isGameOver = false;
 			isGameClear = false;
 			playerBulletCooldown = 0;
 			enemyBulletCooldown = 0;
+			trackingBulletCooldown = 0;
 
 
 
@@ -136,19 +146,73 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			enemy.Move(WL, WR, WT, player.GetPos(), playerBullets, kMaxPlayerBullets);
 
 			// プレイヤー弾発射
-			if (playerBulletCooldown > 0) playerBulletCooldown--;
+			if (playerBulletCooldown > 0) {
+				playerBulletCooldown--;
+			}
+			if (trackingBulletCooldown > 0) {
+				trackingBulletCooldown--;
+			}
+			
+			// --- 弾発射処理 ---
 			if (keys[DIK_SPACE] && playerBulletCooldown <= 0) {
-				for (int i = 0; i < kMaxPlayerBullets; i++) {
-					if (!playerBullets[i].IsShot()) {
-						playerBullets[i].Shoot(player.GetPos());
-						playerBulletCooldown = 10;
-						break;
+
+				// ダブルアタックを取得していないとき
+				if (!doubleAttack.IsActiveGet()) {
+					for (int i = 0; i < kMaxPlayerBullets; i++) {
+						if (!playerBullets[i].IsShot()) {
+							playerBullets[i].Shoot(player.GetPos());
+							playerBulletCooldown = 20; // クールダウン
+							break;
+						}
+					}
+				}
+				// ダブルアタック取得中のとき
+				else {
+					int firstIndex = -1;
+					int secondIndex = -1;
+
+					// 空いている弾を2つ探す
+					for (int i = 0; i < kMaxPlayerBullets; i++) {
+						if (!playerBullets[i].IsShot()) {
+							if (firstIndex == -1) {
+								firstIndex = i;
+							} else if (secondIndex == -1) {
+								secondIndex = i;
+								break;
+							}
+						}
+					}
+
+					if (firstIndex != -1 && secondIndex != -1) {
+						Vector2 playerPos = player.GetPos();
+
+						// 左の弾
+						Vector2 leftPos = { playerPos.x - 20.0f, playerPos.y };
+						playerBullets[firstIndex].Shoot(leftPos);
+
+						// 右の弾
+						Vector2 rightPos = { playerPos.x + 20.0f, playerPos.y };
+						playerBullets[secondIndex].Shoot(rightPos);
+
+						playerBulletCooldown = 10; // クールダウン
+					}
+				}
+
+				if (trackingItem.IsActiveGet()) {
+					for (int i = 0; i < kMaxTrackingBullets; i++) {
+						if (!trackingBullets[i].IsShot()) {
+							trackingBullets[i].Shoot(player.GetPos());
+							trackingBulletCooldown = 20; // クールダウン
+							break;
+						}
 					}
 				}
 			}
-
 			// プレイヤー弾更新
 			for (int i = 0; i < kMaxPlayerBullets; i++) playerBullets[i].Update();
+			for (int i = 0; i < kMaxTrackingBullets; i++) trackingBullets[i].Update(enemy);
+
+
 
 			// 敵弾発射
 			if (enemyBulletCooldown > 0) {
@@ -171,41 +235,53 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			//敵弾
 			for (int i = 0; i < kMaxEnemyBullets; i++) enemyBullets[i].Update();
 
-			//被弾判定
 			for (int i = 0; i < kMaxPlayerBullets; i++) {
 				if (playerBullets[i].IsShot()) {
-					// Enemy判定
-					if (enemy.CheckHit(playerBullets[i].GetPos(), playerBullets[i].GetRadius())) {
-						playerBullets[i].SetShot(false);
+					float dx = playerBullets[i].GetPos().x - enemy.GetPos().x;
+					float dy = playerBullets[i].GetPos().y - enemy.GetPos().y;
+					float distSq = dx * dx + dy * dy;
+					float hitRange = playerBullets[i].GetRadius() + enemy.GetRadius();
 
-						line.LineEnemyHit();
+					if (distSq < hitRange * hitRange) {
+						playerBullets[i].SetShot(false); // 弾は必ず消える
+						if (!enemy.IsHit()) {            // 無敵中でなければ被弾演出
+							enemy.Hit();
+							line.LineEnemyHit();
+						}
 					}
 				}
 			}
-			for (int i = 0; i < kMaxEnemyBullets; i++) {
-				if (enemyBullets[i].IsShot()) {
-					// Playe判定
-					if (player.CheckHit(enemyBullets[i].GetPos(), enemyBullets[i].GetRadius())) {
-						enemyBullets[i].SetShot(false);
 
-						line.LinePlayerHit();
+			for (int i = 0; i < kMaxTrackingBullets; i++) {
+				if (trackingBullets[i].IsShot()) {
+					float dx = trackingBullets[i].GetPos().x - enemy.GetPos().x;
+					float dy = trackingBullets[i].GetPos().y - enemy.GetPos().y;
+					float distSq = dx * dx + dy * dy;
+					float hitRange = trackingBullets[i].GetRadius() + enemy.GetRadius();
+
+					if (distSq < hitRange * hitRange) {
+						trackingBullets[i].SetShot(false); // 弾は必ず消える
+						if (!enemy.IsHit()) {              // 無敵中でなければ被弾演出
+							enemy.Hit();
+							line.LineEnemyHit();
+						}
 					}
 				}
 			}
 
 			// アイテム更新
-			doubleAttack.Update();
-			followBullet.Update();
+			doubleAttack.Move();
+			trackingItem.Move();
 
-			// プレイヤー弾との接触判定
 			for (int i = 0; i < kMaxPlayerBullets; i++) {
 				if (playerBullets[i].IsShot()) {
-					//アイテム更新
 					doubleAttack.CheckGet(playerBullets, kMaxPlayerBullets);
-					followBullet.CheckGet(playerBullets, kMaxPlayerBullets);
-
+					trackingItem.CheckGet(playerBullets, kMaxPlayerBullets);
 				}
 			}
+
+
+
 
 
 			//被弾タイマー更新 ======
@@ -227,13 +303,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			player.Draw();
 			enemy.Draw();
 			line.Draw();
-
 			doubleAttack.Draw();
-			followBullet.Draw();
+			trackingItem.Draw();
+
 
 
 			for (int i = 0; i < kMaxPlayerBullets; i++) playerBullets[i].Draw();
 			for (int i = 0; i < kMaxEnemyBullets; i++) enemyBullets[i].Draw();
+			for (int i = 0; i < kMaxTrackingBullets; i++) trackingBullets[i].Draw();
 
 			break;
 

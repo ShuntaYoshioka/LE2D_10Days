@@ -38,6 +38,12 @@
     <ClCompile Include="Item.cpp">
       <Filter>KamataEngine</Filter>
     </ClCompile>
+    <ClCompile Include="Itemtracking.cpp">
+      <Filter>KamataEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="TrackingBullet.cpp">
+      <Filter>KamataEngine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="C:\KamataEngine\DirectXGame\audio\Audio.h">
@@ -128,5 +134,7 @@
     <ClInclude Include="EnemyBullet.h" />
     <ClInclude Include="Line.h" />
     <ClInclude Include="Item.h" />
+    <ClInclude Include="Itemtracking.h" />
+    <ClInclude Include="TrackingBullet.h" />
   </ItemGroup>
 </Project>
